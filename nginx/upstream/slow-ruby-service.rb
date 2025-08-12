@@ -72,6 +72,10 @@ class SlowRubyService
       "HTTP/1.1 200 OK",
       "Content-Type: application/json",
       "Content-Length: #{response_body.bytesize}",
+      # Uncomment when testing cache
+      # "Cache-Control: no-cache, no-store, must-revalidate, max-age=0",
+      # "Pragma: no-cache",
+      # "Expires: 0",
       "",
       response_body
     ].join("\r\n")
