@@ -61,6 +61,7 @@ You should see both `nginx` and `slow-ruby-service` containers in the "Up" state
 |----------|-------------|-------------------|
 | `/` | Welcome message | "Welcome to nginx server" |
 | `/slow-process` | Proxies to Ruby service | Response from slow-ruby-service |
+| `/cached-endpoint` | **Proxies to Ruby service with caching** | **Cached response from slow-ruby-service** |
 | `/slow` | Rate-limited slow response | Slow response (1 byte/sec) |
 | `/test_444` | Test 444 status code | 444 (No Response) |
 
@@ -236,6 +237,44 @@ To regenerate certificates (e.g., when they expire):
 1. Delete existing certificate files: `rm -f *.crt *.key *.srl`
 2. Run the generation script: `./generate-certs.sh`
 3. Restart the nginx container: `docker-compose restart`
+
+## Proxy Caching
+
+The `/cached-endpoint` demonstrates nginx's proxy caching capabilities:
+
+### Cache Configuration
+
+- **Cache Path**: `/var/cache/nginx` (persisted via Docker volume)
+- **Cache Zone**: `my_cache` with 10MB memory allocation
+- **Cache Size**: Maximum 10GB on disk
+- **Cache Duration**: 10 minutes for successful responses, 1 minute for 404s
+- **Cache Lock**: Prevents multiple requests from updating the same cache entry
+
+### Cache Headers
+
+Responses include cache-related headers:
+- `X-Cache-Status`: Shows cache status (HIT, MISS, UPDATING, etc.)
+- `X-Cache-Key`: Shows the cache key used
+
+### Testing Cache Behavior
+
+```bash
+# First request - should be a MISS and take 5 seconds
+time curl http://localhost:8083/cached-endpoint
+
+# Second request - should be a HIT and be instant
+time curl http://localhost:8083/cached-endpoint
+
+# Check cache headers
+curl -i http://localhost:8083/cached-endpoint | grep X-Cache
+```
+
+### Cache Invalidation
+
+To clear the cache, restart the nginx container:
+```bash
+docker-compose restart nginx
+```
 
 ## Stopping the Services
 

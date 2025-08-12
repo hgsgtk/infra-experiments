@@ -7,6 +7,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
     depends_on:
       - slow-ruby-service
 
@@ -18,3 +19,6 @@ services:
       - "8081:8081"
     environment:
       - RUBY_ENV=production
+
+volumes:
+  nginx_cache:

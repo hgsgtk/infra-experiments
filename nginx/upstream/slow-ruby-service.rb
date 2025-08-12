@@ -64,7 +64,7 @@ class SlowRubyService
       path: path,
       method: method,
       processing_time: sleep_time,
-      timestamp: Time.now.iso8601,
+      timestamp: Time.now.strftime("%Y-%m-%dT%H:%M:%S%z"),
       headers_received: headers.keys
     }.to_json
 
@@ -72,9 +72,6 @@ class SlowRubyService
       "HTTP/1.1 200 OK",
       "Content-Type: application/json",
       "Content-Length: #{response_body.bytesize}",
-      "Cache-Control: no-cache, no-store, must-revalidate",
-      "Pragma: no-cache",
-      "Expires: 0",
       "",
       response_body
     ].join("\r\n")
