@@ -1,0 +1,22 @@
+# SSL certificates and keys
+nginx/nginx/ssl/*.crt
+nginx/nginx/ssl/*.key
+nginx/nginx/ssl/*.srl
+
+# General build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.o
+*.out
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
