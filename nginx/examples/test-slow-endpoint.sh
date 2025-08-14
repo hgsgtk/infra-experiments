@@ -3,8 +3,9 @@
 echo "Choose an endpoint to test for 499 response code (Client Closed Request):"
 echo "1) /slow-process endpoint"
 echo "2) /cached-endpoint"
+echo "3) /slow endpoint"
 echo ""
-read -p "Enter your choice (1 or 2): " choice
+read -p "Enter your choice (1, 2, or 3): " choice
 
 case $choice in
     1)
@@ -13,9 +14,36 @@ case $choice in
     2)
         ENDPOINT="/cached-endpoint"
         ;;
+    3)
+        ENDPOINT="/slow"
+        ;;
     *)
-        echo "Invalid choice. Please run the script again and select 1 or 2."
+        echo "Invalid choice. Please run the script again and select 1, 2, or 3."
         exit 1
+        ;;
+esac
+
+echo ""
+echo "Choose port number:"
+echo "1) 8083 (default)"
+echo "2) 8084"
+echo "3) Custom port"
+echo ""
+read -p "Enter your choice (1-3): " port_choice
+
+case $port_choice in
+    1)
+        PORT="8083"
+        ;;
+    2)
+        PORT="8084"
+        ;;
+    3)
+        read -p "Enter custom port number: " PORT
+        ;;
+    *)
+        echo "Invalid choice. Using default port 8083."
+        PORT="8083"
         ;;
 esac
 
@@ -54,14 +82,14 @@ esac
 echo ""
 echo "Testing for 499 response code (Client Closed Request)..."
 echo ""
-echo "Starting curl request to $ENDPOINT endpoint using $HTTP_METHOD method..."
+echo "Starting curl request to $ENDPOINT endpoint using $HTTP_METHOD method on port $PORT..."
 echo "This endpoint will take time to process due to proxy_pass to non-existent backend..."
 
 # Send request to the selected endpoint and capture the process ID
 if [ "$HTTP_METHOD" = "GET" ]; then
-    curl -i -X $HTTP_METHOD http://localhost:8083$ENDPOINT > /tmp/curl_output 2>&1 &
+    curl -i -X $HTTP_METHOD http://localhost:$PORT$ENDPOINT > /tmp/curl_output 2>&1 &
 else
-    curl -i -X $HTTP_METHOD -d "test_data" http://localhost:8083$ENDPOINT > /tmp/curl_output 2>&1 &
+    curl -i -X $HTTP_METHOD -d "test_data" http://localhost:$PORT$ENDPOINT > /tmp/curl_output 2>&1 &
 fi
 CURL_PID=$!
 
@@ -83,7 +111,7 @@ echo ""
 echo "Test completed!"
 echo ""
 echo "Note: Check your nginx container logs with: docker logs <container-name>"
-echo "Look for a log entry with status 499 for the $HTTP_METHOD $ENDPOINT endpoint request."
+echo "Look for a log entry with status 499 for the $HTTP_METHOD $ENDPOINT endpoint request on port $PORT."
 echo ""
 echo "The $ENDPOINT endpoint should generate 499 responses because:"
 echo "1. It tries to proxy to a non-existent backend (127.0.0.1:9999)"
