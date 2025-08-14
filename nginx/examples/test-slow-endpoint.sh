@@ -3,7 +3,7 @@
 echo "Choose an endpoint to test for 499 response code (Client Closed Request):"
 echo "1) /slow-process endpoint"
 echo "2) /cached-endpoint"
-echo "3) /slow endpoint"
+echo "3) /slow-body-response endpoint"
 echo ""
 read -p "Enter your choice (1, 2, or 3): " choice
 
@@ -15,7 +15,7 @@ case $choice in
         ENDPOINT="/cached-endpoint"
         ;;
     3)
-        ENDPOINT="/slow"
+        ENDPOINT="/slow-body-response"
         ;;
     *)
         echo "Invalid choice. Please run the script again and select 1, 2, or 3."
