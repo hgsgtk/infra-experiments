@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: broken-cronjob
+  namespace: default
+  labels:
+    app: broken-cronjob
+    purpose: testing-failures
+spec:
+  schedule: "*/5 * * * *"  # Run every 5 minutes
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: broken-container
+            image: nonexistent-registry.example.com/broken-image:latest
+            command: ["/bin/sh"]
+            args: ["-c", "echo 'This job should fail due to image pull error'"]
+            resources:
+              requests:
+                memory: "64Mi"
+                cpu: "50m"
+              limits:
+                memory: "128Mi"
+                cpu: "100m"
+          restartPolicy: Never
+          imagePullSecrets:
+          - name: nonexistent-secret
+          serviceAccountName: nonexistent-serviceaccount
