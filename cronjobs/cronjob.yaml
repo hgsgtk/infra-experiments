@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sample-cronjob
+  namespace: default
+  labels:
+    app: sample-cronjob
+    component: cronjob
+spec:
+  schedule: "*/1 * * * *"  # Run every minute
+  concurrencyPolicy: Forbid  # Don't run if previous job is still running
+  successfulJobsHistoryLimit: 3  # Keep last 3 successful jobs
+  failedJobsHistoryLimit: 1      # Keep last 1 failed job
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: sample-container
+            image: busybox:1.35
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Current time: $(date)"
+              echo "Job started at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              echo "Pod name: $HOSTNAME"
+              echo "Namespace: $NAMESPACE"
+            env:
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            resources:
+              limits:
+                ephemeral-storage: 1Gi
+              requests:
+                cpu: 500m
+                ephemeral-storage: 1Gi
+                memory: 2Gi
+          restartPolicy: OnFailure
+          terminationGracePeriodSeconds: 30
